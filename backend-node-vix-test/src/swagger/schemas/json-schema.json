@@ -345,6 +345,36 @@
           ],
           "format": "date-time"
         },
+        "fullName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "userPhoneNumber": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "department": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "field": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "contractDate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "brandMaster": {
           "anyOf": [
             {

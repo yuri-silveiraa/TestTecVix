@@ -1,5 +1,6 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { ERole, Prisma, PrismaClient } from "@prisma/client";
 import fs from "fs/promises";
+import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
 const SEEDS_FOLDER_NAME = ""; // "seeds" folder inside temp folder: ex: "temp/SEEDS_FOLDER_NAME"
@@ -33,6 +34,67 @@ async function main() {
   };
 
   const seedTable = async (table: Prisma.ModelName) => {
+    if (table === "user") {
+      const PASSWORD_HASH =
+        "$2b$10$XFPiVMGmcArnEVZFbfo02.0y4JU7.4F/QnRShOt4YCevbvzImPZBe";
+
+      const roles = ["admin", "member", "manager"] as const;
+
+      const users = Array.from({ length: 20 }).map((_, i) => {
+        const hasBrand = i >= 10;
+
+        return {
+          username: faker.internet.username().toLowerCase(),
+          password: PASSWORD_HASH,
+          email: faker.internet.email().toLowerCase(),
+          fullName: faker.person.fullName(),
+          contractDate: faker.date
+            .between({ from: "2020-01-01", to: "2024-12-31" })
+            .toISOString()
+            .slice(0, 10),
+          role: roles[Math.floor(Math.random() * roles.length)],
+          idBrandMaster: hasBrand ? faker.number.int({ min: 1, max: 3 }) : null,
+        };
+      });
+
+      const users2 = [
+        {
+          username: "admin",
+          password: PASSWORD_HASH,
+          email: "admin@example.com",
+          role: ERole.admin,
+          fullName: "Admin User",
+          contractDate: "2022-01-01",
+        },
+        {
+          username: "manager",
+          password: PASSWORD_HASH,
+          email: "manager@example.com",
+          role: ERole.manager,
+          fullName: "Manager User",
+          contractDate: "2022-01-01",
+        },
+        {
+          username: "member",
+          password: PASSWORD_HASH,
+          email: "member@example.com",
+          role: ERole.member,
+          fullName: "Member User",
+          contractDate: "2022-01-01",
+        },
+      ];
+
+      const allUsers = [...users, ...users2];
+
+      await prisma.user.createMany({
+        data: allUsers,
+        skipDuplicates: true,
+      });
+
+      console.log("Usuários gerados!");
+      return;
+    }
+
     const data = await readFile(`${snakeToCamel(table)}.json`);
 
     try {

@@ -82,6 +82,11 @@ model user {
   createdAt     DateTime? @default(now()) @db.DateTime(0)
   updatedAt     DateTime? @default(now()) @db.DateTime(0)
   deletedAt     DateTime? @db.DateTime(0)
+  fullName        String?
+  userPhoneNumber String?
+  department      String?
+  field           String?
+  contractDate    String?
 
   brandMaster brandMaster? @relation(fields: [idBrandMaster], references: [idBrandMaster])
 
