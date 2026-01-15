@@ -153,6 +153,7 @@ export class UserController {
 
     const { password: _, ...userWithoutPassword } = user as any;
 
+    userModel.updateLastLogin(user.idUser.toString());
     return res.status(STATUS_CODE.OK).json({ user: userWithoutPassword });
   }
 }
