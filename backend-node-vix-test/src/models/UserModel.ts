@@ -2,6 +2,7 @@ import { prisma } from "../database/client";
 import { TUserCreated } from "../types/validations/User/createUser";
 import { TUserUpdated } from "../types/validations/User/updateUser";   
 import { TUserQuery } from "../types/validations/Queries/queryUserList";
+import { Prisma } from "@prisma/client";
 
 export class UserModel {
 
@@ -10,23 +11,7 @@ export class UserModel {
   async getById(idUser: string) {
     return prisma.user.findUnique({
       where: { idUser },
-      select: {
-        idUser: true,
-        username: true,
-        email: true,
-        profileImgUrl: true,
-        role: true,
-        idBrandMaster: true,
-        isActive: true,
-        lastLoginDate: true,
-        createdAt: true,
-        updatedAt: true,
-        deletedAt: true,
-        userPhoneNumber: true,
-        field: true,
-        department: true,
-        contractDate: true,
-        fullName: true,
+      include: {
         brandMaster: {
           select: {
             idBrandMaster: true,
@@ -35,7 +20,7 @@ export class UserModel {
             domain: true,
           },
         },
-      },
+      }
     });
   }
 
@@ -80,57 +65,50 @@ export class UserModel {
 // ---------- Lista usuários com paginação, filtros e ordenação
   
   async listAll(query: TUserQuery, isIncludeDeleted?: boolean) {
-    const limit = query.limit || 0;
-    const skip = query.page ? query.page * limit : query.offset ?? 0;
-    const orderBy =
-      query.orderBy?.map(({ field, direction }) => ({
-        [field]: direction,
-      })) || [];
+  const limit = query.limit || 0;
+  const skip = query.page ? query.page * limit : query.offset || 0;
 
-    const users = await prisma.user.findMany({
-      where: {
-        ...(!isIncludeDeleted && { deletedAt: null }),
-        role: query.role,
-        idBrandMaster: query.idBrandMaster,
-        OR: query.search
-          ? [
-              { username: { contains: query.search } },
-              { email: { contains: query.search } },
-              { fullName: { contains: query.search } },
-            ]
-          : undefined,
-      },
-      select: {
-        idUser: true,
-        username: true,
-        email: true,
-        profileImgUrl: true,
-        role: true,
-        idBrandMaster: true,
-        isActive: true,
-        lastLoginDate: true,
-        createdAt: true,
-        updatedAt: true,
-        userPhoneNumber: true,
-        field: true,
-        department: true,
-        contractDate: true,
-        fullName: true,
-        brandMaster: {
-          select: {
-            brandName: true,
-            domain: true,
-          },
+  const mappedOrderBy = query.orderBy?.map(({ field, direction }) => ({
+    [field]: direction,
+  })) as Prisma.userOrderByWithRelationInput[] ?? [];
+
+  const defaultOrderBy: Prisma.userOrderByWithRelationInput[] = [
+    { updatedAt: "desc" },
+  ];
+
+  const finalOrderBy = mappedOrderBy.length > 0 ? mappedOrderBy : defaultOrderBy;
+
+  const users = await prisma.user.findMany({
+    where: {
+      ...(!isIncludeDeleted && { deletedAt: null }),
+      role: query.role,
+      idBrandMaster: query.idBrandMaster,
+      OR: query.search
+        ? [
+            { username: { contains: query.search } },
+            { email: { contains: query.search } },
+            { fullName: { contains: query.search } },
+          ]
+        : undefined,
+    },
+    include: {
+      brandMaster: {
+        select: {
+          idBrandMaster: true,
+          brandName: true,
+          brandLogo: true,
+          domain: true,
         },
       },
-      take: limit || undefined,
-      skip,
-      ...(orderBy.length ? { orderBy } : { orderBy: [{ updatedAt: "desc" }] }),
-    });
+    },
+    take: limit || undefined,
+    skip,
+    orderBy: finalOrderBy,
+  });
 
-    const totalCount = await this.totalCount(query, isIncludeDeleted);
-    return { totalCount, result: users };
-  }
+  const totalCount = await this.totalCount(query, isIncludeDeleted);
+  return { totalCount, result: users };
+}
 
 // -----------  Criar novo usuário
 
@@ -153,23 +131,6 @@ export class UserModel {
       data: {
         ...data,
         updatedAt: new Date(),
-      },
-      select: {
-        idUser: true,
-        username: true,
-        email: true,
-        profileImgUrl: true,
-        role: true,
-        idBrandMaster: true,
-        isActive: true,
-        lastLoginDate: true,
-        createdAt: true,
-        updatedAt: true,
-        userPhoneNumber: true,
-        field: true,
-        department: true,
-        contractDate: true,
-        fullName: true,
       },
     });
   }
