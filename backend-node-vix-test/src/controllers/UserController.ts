@@ -135,4 +135,22 @@ export class UserController {
 
     return res.status(STATUS_CODE.NO_CONTENT).send();
   }
+
+// ----------------- LOGIN /users/login - Autenticação de usuário
+
+  async login(req: Request, res: Response) {
+    const { email, password } = req.body;
+
+    const user = await userModel.getByEmail(email);
+    if (!user) {
+      return res.status(STATUS_CODE.UNAUTHORIZED).json({ error: ERROR_MESSAGE.INVALID_CREDENTIALS });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(STATUS_CODE.UNAUTHORIZED).json({ error: ERROR_MESSAGE.INVALID_CREDENTIALS });
+    }
+
+    return res.status(STATUS_CODE.NO_CONTENT).send();
+  }
 }
