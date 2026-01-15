@@ -48,7 +48,7 @@ export const useLogin = () => {
     }
 
     const response = await api.post<IUserLoginResponse>({
-      url: "/user/login",
+      url: "/users/login",
       data: {
         username: username || undefined,
         password,
@@ -78,6 +78,7 @@ export const useLogin = () => {
       userPhoneNumber: response.data.user.userPhoneNumber,
     });
     setLoginTime(new Date());
+    return navigate("/");
   };
 
   const goLogout = () => {
