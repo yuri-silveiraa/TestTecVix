@@ -151,6 +151,8 @@ export class UserController {
       return res.status(STATUS_CODE.UNAUTHORIZED).json({ error: ERROR_MESSAGE.INVALID_CREDENTIALS });
     }
 
-    return res.status(STATUS_CODE.NO_CONTENT).send();
+    const { password: _, ...userWithoutPassword } = user as any;
+
+    return res.status(STATUS_CODE.NO_CONTENT).json(userWithoutPassword);
   }
 }
