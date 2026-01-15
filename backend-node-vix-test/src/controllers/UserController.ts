@@ -153,6 +153,6 @@ export class UserController {
 
     const { password: _, ...userWithoutPassword } = user as any;
 
-    return res.status(STATUS_CODE.NO_CONTENT).json(userWithoutPassword);
+    return res.status(STATUS_CODE.OK).json({ user: userWithoutPassword });
   }
 }
