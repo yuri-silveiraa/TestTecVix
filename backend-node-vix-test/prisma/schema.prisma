@@ -57,6 +57,8 @@ model vM {
   vCPU          Int
   ram           Int
   disk          Int
+  pass          String?
+  location      ETaskLocation?
   hasBackup     Boolean?     @default(false)
   idBrandMaster Int?
   status        EVMStatus?
@@ -103,4 +105,9 @@ enum ERole {
   admin
   manager
   member
+}
+
+enum ETaskLocation {
+  LOCAL
+  CLOUD
 }

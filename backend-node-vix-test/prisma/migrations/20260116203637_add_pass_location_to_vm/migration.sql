@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `vM` ADD COLUMN `location` ENUM('LOCAL', 'CLOUD') NULL,
+    ADD COLUMN `pass` VARCHAR(191) NULL;

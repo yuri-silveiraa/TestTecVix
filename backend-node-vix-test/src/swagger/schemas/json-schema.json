@@ -223,6 +223,22 @@
         "disk": {
           "type": "integer"
         },
+        "pass": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "location": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "LOCAL",
+            "CLOUD"
+          ]
+        },
         "hasBackup": {
           "type": [
             "boolean",
