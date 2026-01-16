@@ -5,6 +5,9 @@ import { STATUS_CODE } from "../constants/statusCode";
 import { verifyToken } from "../utils/jwt";
 import { CustomRequest } from "../types/custom";
 import { user } from "@prisma/client";
+import { UserModel } from "../models/UserModel";
+
+const userModel = new UserModel();
 
 export const authUser = async (
   req: CustomRequest<user>,
@@ -17,12 +20,18 @@ export const authUser = async (
   }
   const token = authorization.split(" ")[1];
 
-  // const idUser = verifyToken(token);
-  // const user = //
+  const payload = verifyToken(token);
+  const user = await userModel.getById(payload.idUser);
 
-  // if (isInvalidUser) {
-  //   throw new AppError(ERROR_MESSAGE.UNAUTHORIZED, STATUS_CODE.UNAUTHORIZED);
-  // }
-  // req.user = user;
+  if (!user) {
+    throw new AppError(ERROR_MESSAGE.UNAUTHORIZED, STATUS_CODE.UNAUTHORIZED);
+  }
+
+  if (!user.isActive) {
+    throw new AppError(ERROR_MESSAGE.UNAUTHORIZED, STATUS_CODE.UNAUTHORIZED);
+  }
+
+  await userModel.updateLastLogin(payload.idUser);
+  req.user = user;
   return next();
 };
