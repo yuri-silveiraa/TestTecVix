@@ -60,7 +60,7 @@ async function main() {
       const users2 = [
         {
           username: "admin",
-          password: PASSWORD_HASH,
+          password: "Admin@123",
           email: "admin@example.com",
           role: ERole.admin,
           fullName: "Admin User",
@@ -68,7 +68,7 @@ async function main() {
         },
         {
           username: "manager",
-          password: PASSWORD_HASH,
+          password: "Manager@123",
           email: "manager@example.com",
           role: ERole.manager,
           fullName: "Manager User",
@@ -76,7 +76,7 @@ async function main() {
         },
         {
           username: "member",
-          password: PASSWORD_HASH,
+          password: "Member@123",
           email: "member@example.com",
           role: ERole.member,
           fullName: "Member User",
