@@ -235,8 +235,8 @@
             "null"
           ],
           "enum": [
-            "LOCAL",
-            "CLOUD"
+            "bre_barueri",
+            "usa_miami"
           ]
         },
         "hasBackup": {

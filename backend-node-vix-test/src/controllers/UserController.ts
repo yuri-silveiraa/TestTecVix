@@ -158,4 +158,16 @@ export class UserController {
     await userModel.updateLastLogin(user.idUser);
     return res.status(STATUS_CODE.OK).json({ user: userWithoutPassword, token });
   }
+
+  async generateToken(req: Request, res: Response) {
+    const { idUser } = req.params;
+
+    const user = await userModel.getById(idUser as string);
+    if (!user) {
+      return res.status(STATUS_CODE.NOT_FOUND).json({ error: ERROR_MESSAGE.USER_NOT_FOUND });
+    }
+
+    const token = genToken({ idUser: user.idUser }, "5d");
+    return res.status(STATUS_CODE.OK).json({ token });
+  }
 }

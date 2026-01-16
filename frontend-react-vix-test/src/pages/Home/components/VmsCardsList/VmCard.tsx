@@ -40,6 +40,8 @@ export interface IVmCardProps {
   logo?: string;
 }
 
+type TStatus = "RUNNING" | "STOPPED" | "PAUSED";
+
 export const VmCard = ({
   vmId,
   vmName,
@@ -76,6 +78,7 @@ export const VmCard = ({
 
   const {
     updateNameVm,
+    updateVMStatus,
     updateDiskSizeVm,
     getVMById: getVMByIdResource,
     isLoading,
@@ -125,6 +128,7 @@ export const VmCard = ({
     setStatusState("RUNNING");
     if (!checkStatus(statusState, taskState?.action).isRunning)
       setShowConfirmation(true);
+    updateVMStatus({ idVM: vmId, status: statusState as TStatus });
   };
 
   const closeModalWarning = () => {

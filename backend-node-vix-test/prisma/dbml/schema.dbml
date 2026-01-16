@@ -89,8 +89,8 @@ Enum ERole {
 }
 
 Enum ETaskLocation {
-  LOCAL
-  CLOUD
+  bre_barueri
+  usa_miami
 }
 
 Ref: vM.idBrandMaster > brandMaster.idBrandMaster
