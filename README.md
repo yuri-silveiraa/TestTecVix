@@ -389,15 +389,15 @@ Exemplo:
 
 ```
 Admin:
-  Email: admin@vituax.com
+  Email: admin@example.com
   Senha: Admin@123
 
 Manager:
-  Email: manager@vituax.com
+  Email: manager@example.com
   Senha: Manager@123
 
 Member:
-  Email: member@vituax.com
+  Email: member@example.com
   Senha: Member@123
 ```
 
