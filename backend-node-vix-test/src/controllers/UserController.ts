@@ -6,6 +6,7 @@ import { userQuerySchema } from "../types/validations/Queries/queryUserList";
 import bcrypt from "bcrypt";
 import { STATUS_CODE } from "../constants/statusCode";
 import { ERROR_MESSAGE } from "../constants/erroMessages";
+import { genToken } from "../utils/jwt";
 
 const userModel = new UserModel();
 const SALT_ROUNDS = 10;
@@ -153,7 +154,8 @@ export class UserController {
 
     const { password: _, ...userWithoutPassword } = user as any;
 
-    userModel.updateLastLogin(user.idUser.toString());
-    return res.status(STATUS_CODE.OK).json({ user: userWithoutPassword });
+    const token = genToken({ idUser: user.idUser }, "1d");
+    await userModel.updateLastLogin(user.idUser);
+    return res.status(STATUS_CODE.OK).json({ user: userWithoutPassword, token });
   }
 }
