@@ -112,23 +112,31 @@ export const VmCard = ({
   const handleConfirm = async () => {
     if (statusState !== preStatusState) {
       setPreStatusState(statusState);
-
+      await updateVMStatus({ idVM: vmId, status: statusState as TStatus });
       await getVMById();
     }
     setShowConfirmation(false);
   };
 
-  const handlePaused = () => {
-    setStatusState("PAUSED");
-    if (checkStatus(statusState, taskState?.action).isRunning)
+  const handleStart = () => {
+    if (statusState !== "RUNNING") {
+      setStatusState("RUNNING");
       setShowConfirmation(true);
+    }
   };
 
-  const handleStart = () => {
-    setStatusState("RUNNING");
-    if (!checkStatus(statusState, taskState?.action).isRunning)
+  const handlePaused = () => {
+    if (statusState !== "PAUSED") {
+      setStatusState("PAUSED");
       setShowConfirmation(true);
-    updateVMStatus({ idVM: vmId, status: statusState as TStatus });
+    }
+  };
+
+  const handleStop = () => {
+    if (statusState !== "STOPPED") {
+      setStatusState("STOPPED");
+      setShowConfirmation(true);
+    }
   };
 
   const closeModalWarning = () => {
@@ -149,17 +157,25 @@ export const VmCard = ({
     await getVMById();
   };
 
-  const hasPandingTaskShutdown =
+  const hasPendingShutdown =
     taskState?.action === "pending" && taskState?.operation === "shutdown";
-  const hasPandingTaskStart =
+  const hasPendingStart =
     taskState?.action === "pending" && taskState?.operation === "start";
+  const hasPendingStop =
+    taskState?.action === "pending" && taskState?.operation === "hard";
 
-  const actionExec =
-    Boolean(checkStatus(statusState).isRunning && !hasPandingTaskShutdown) ||
-    hasPandingTaskStart;
+  const statusCheck = checkStatus(statusState, taskState?.action);
+  const isRunning = statusCheck.isRunning;
+  const isStopped = statusCheck.isStopped;
+  const isPaused = statusCheck.isPaused;
+
+  const actionStart =
+    isRunning || hasPendingShutdown || hasPendingStop;
   const actionPause =
-    Boolean(!checkStatus(statusState).isRunning && !hasPandingTaskStart) ||
-    hasPandingTaskShutdown;
+    isPaused || hasPendingStop || hasPendingStart;
+  const actionStop =
+    isStopped || hasPendingShutdown || hasPendingStart;
+  
 
   useEffect(() => {
     if (updateThisVm === vmId) {
@@ -238,19 +254,19 @@ export const VmCard = ({
             sx={{
               borderRadius: "8px 0px 0px 8px",
               padding: "0px",
-              backgroundColor: actionExec ? theme[mode].blue : "transparent",
+              backgroundColor: actionStart ? theme[mode].blue : "transparent",
               border:
                 checkStatus(statusState, taskState?.action).isStopped ||
                 checkStatus(statusState, taskState?.action).isPaused
                   ? "1px solid"
                   : "0px solid",
-              borderColor: actionExec ? theme[mode].blue : theme[mode].tertiary,
+              borderColor: actionStart ? theme[mode].blue : theme[mode].tertiary,
             }}
           >
             <TextRob12Font2Xs
               sx={{
-                color: actionExec ? theme[mode].btnText : theme[mode].tertiary,
-                fontWeight: actionExec ? "500" : "400",
+                color: actionStart ? theme[mode].btnText : theme[mode].tertiary,
+                fontWeight: actionStart ? "500" : "400",
                 letterSpacing: "0.5px",
                 lineHeight: "22px",
               }}
@@ -264,17 +280,20 @@ export const VmCard = ({
             onClick={handlePaused}
             className="w-full"
             sx={{
-              borderRadius: "0px 8px 8px 0px",
+              borderRadius: "0px 0px 0px 0px",
               padding: "0px",
               backgroundColor: actionPause
                 ? theme[mode].blueMedium
                 : "transparent",
-              border: checkStatus(statusState, taskState?.action).isRunning
+              border: 
+                checkStatus(statusState, taskState?.action).isRunning ||
+                checkStatus(statusState, taskState?.action).isStopped
                 ? "1px solid"
                 : "0px solid",
               borderColor: actionPause
                 ? theme[mode].blueMedium
                 : theme[mode].tertiary,
+              borderRight: "none",
             }}
           >
             <TextRob12Font2Xs
@@ -282,6 +301,38 @@ export const VmCard = ({
                 color: actionPause ? theme[mode].btnText : theme[mode].tertiary,
                 letterSpacing: "0.5px",
                 fontWeight: actionPause ? "500" : "400",
+                lineHeight: "22px",
+              }}
+            >
+              {t("home.pause")}
+            </TextRob12Font2Xs>
+          </Btn>
+          {/* Stop */}
+          <Btn
+            disabled={checkStatus(statusState, taskState?.action).isWaiting}
+            onClick={handleStop}
+            className="w-full"
+            sx={{
+              borderRadius: "0px 8px 0px 0px",
+              padding: "0px",
+              backgroundColor: actionStop
+                ? theme[mode].danger
+                : "transparent",
+              border: 
+                checkStatus(statusState, taskState?.action).isRunning ||
+                checkStatus(statusState, taskState?.action).isPaused
+                ? "1px solid"
+                : "0px solid",
+              borderColor: actionStop
+                ? theme[mode].danger
+                : theme[mode].tertiary,
+            }}
+          >
+            <TextRob12Font2Xs
+              sx={{
+                color: actionStop ? theme[mode].btnText : theme[mode].tertiary,
+                letterSpacing: "0.5px",
+                fontWeight: actionStop ? "500" : "400",
                 lineHeight: "22px",
               }}
             >
